@@ -5,41 +5,59 @@
 #include <stdbool.h>
 
 /********/
-/* #user input   */
-/* #fix terminal visual bug  ❌ (only happens on first terminal)*/
+/* #user input  ½ */
+/* #input validation */
 /* #win checking   */
 /* #AI   */
 /* #Win screen    */
 /********/
 
-
+bool valid_input(int pos[2]);
 int printfield(char vals[3][3]);
-int  place();
-int main() {
+int place_x();
+int place_y();
+
+int main()
+{
 	char vals[3][3] = {{' ',' ', ' '},{' ',' ',' '},{' ',' ',' '}};
-	int player_place_pos;
+	int player_place_pos[2];
 	bool end = 0;
-	
+
 	printfield(vals);
 	printf("You start\n");
-	printf("To place your piece:\nEnter the x coordinate followed by the y coordinate, seperate them using an space\n");
+	printf("e\n");
+
 	while(!end) {
-	player_place_pos = place();
+		do {
+			player_place_pos[0] = place_x();
+			player_place_pos[1] = place_y();
+		} while (!valid_input(player_place_pos));
 	printfield(vals);
-	printf("%d",player_place_pos);
+	printf("%d",player_place_pos[1]);
 	}
 }
 
-int  place(){
-	char coordinate[5];
+int place_x()
+{
+	char coordinate[3];
 	int pos;
-	fgets(coordinate, 5, stdin);
-	pos = coordinate[2] - '0';
-	pos += (coordinate[0] - '0') * 10;
+	printf("x:");
+	fgets(coordinate, 3, stdin);
+	pos = coordinate[0] - '0';
 	return pos;
 }
 
-int printfield(char vals[3][3]) {
+int place_y()
+{
+	char coordinate[3];
+ 	int pos;
+	printf("y:");
+	fgets(coordinate, 3, stdin);
+	pos = coordinate[0] - '0';
+	return pos;
+}
+int printfield(char vals[3][3])
+{
 	printf("\033[2J");  // Clear the entire screen
 	printf("\033[H");   // Move cursor to home position (0, 0)
 	int line_num = 1;
@@ -70,3 +88,8 @@ int printfield(char vals[3][3]) {
 		return 0;
 }
 
+bool valid_input(int pos[2])
+{
+	bool valid = 1;
+	return valid ;
+}
