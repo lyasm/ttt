@@ -12,28 +12,28 @@
 /* #Win screen    */
 /********/
 
-bool valid_input(int pos[2]);
+bool valid_input(int pos[2], char vals[3][3]);
 int printfield(char vals[3][3]);
 int place_x();
 int place_y();
 
 int main()
 {
-	char vals[3][3] = {{' ',' ', ' '},{' ',' ',' '},{' ',' ',' '}};
+	char vals[3][3] = {{' ','0', ' '},{' ',' ',' '},{' ',' ',' '}};
 	int player_place_pos[2];
 	bool end = 0;
 
 	printfield(vals);
 	printf("You start\n");
-	printf("e\n");
+	printf("the field in the left corner ir (0,0)\n");
 
 	while(!end) {
 		do {
 			player_place_pos[0] = place_x();
 			player_place_pos[1] = place_y();
-		} while (!valid_input(player_place_pos));
+		} while (!valid_input(player_place_pos, vals));
+		vals[player_place_pos[0]][player_place_pos[1]] = 'o';
 	printfield(vals);
-	printf("%d",player_place_pos[1]);
 	}
 }
 
@@ -59,7 +59,7 @@ int place_y()
 int printfield(char vals[3][3])
 {
 	printf("\033[2J");  // Clear the entire screen
-	printf("\033[H");   // Move cursor to home position (0, 0)
+	printf("\033[H");   // Move cursor to (0, 0)
 	int line_num = 1;
 	char vals_line[3];
 	while(line_num <= 11) {
@@ -88,8 +88,11 @@ int printfield(char vals[3][3])
 		return 0;
 }
 
-bool valid_input(int pos[2])
+bool valid_input(int pos[2], char vals[3][3])
 {
-	bool valid = 1;
-	return valid ;
+	bool valid = (' '==vals[pos[0]][pos[1]] && 0 <= pos[0] < 2 &&  0 <=pos[1] < 2);
+	if(!valid) {
+		printf("Invalid position, try again\n");
+	}
+	return valid;
 }
