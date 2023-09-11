@@ -19,10 +19,12 @@
 #define LINES_NUMBER_MAX 11
 #define LINES_ROW 4
 
+char chose_stone(char question[]);
 bool valid_input(int pos[2], char vals[3][3]);
 int printfield(char vals[BOARD_SIZE][BOARD_SIZE]);
 int place_x();
 int place_y();
+
 
 int main()
 {
@@ -33,15 +35,26 @@ int main()
 	printfield(vals);
 	printf("You start\n");
 	printf("the field in the left corner ir (0,0)\n");
-
+	char stone_player = chose_stone("question");
+	double rand = random()/((2<<31) - 1);
+	printf("%d", rand);
+	char stone_comp = 11;
 	while(!end) {
 		do {
 			player_place_pos[1] = place_x();
 			player_place_pos[0] = place_y();
 		} while (!valid_input(player_place_pos, vals));
-		vals[player_place_pos[0]][player_place_pos[1]] = 'o';
+		vals[player_place_pos[0]][player_place_pos[1]] = stone_player;
 	printfield(vals);
 	}
+}
+
+char chose_stone(char question[])
+{
+	char stone[3];
+	printf("%s", question);
+	fgets(stone, 3, stdin);
+	return stone[0];
 }
 
 int place_x()
