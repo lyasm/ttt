@@ -27,28 +27,40 @@ bool valid_input(int pos[2], char vals[BOARD_SIZE][BOARD_SIZE]);
 int printfield(char vals[BOARD_SIZE][BOARD_SIZE]);
 int place_x();
 int place_y();
+void place_comp(char vals[BOARD_SIZE][BOARD_SIZE], int pos[2], char, int round);
 bool end(char vals[BOARD_SIZE][BOARD_SIZE], char);
+
+/* some global vars*/
 
 int main()
 {
 	char vals[BOARD_SIZE][BOARD_SIZE] = {{' ',' ', ' '},{' ',' ',' '},{' ',' ',' '}};
-	int player_place_pos[2];
+	int place_pos[2];
 
 	printfield(vals);
 	printf("You start\n");
 	printf("the field in the left corner ir (0,0)\n");
 	char stone_player = chose_stone("Enter an Charactor as your stone");
 	char stone_comp = 'x';
-	while(!end(vals, stone_player)) {
+	int round = 0;
+	while(!end(vals, stone_comp)) {
+		place_pos[0] = -1;
+		place_pos[1] = -1;
 		do {
-			player_place_pos[1] = place_x();
-			player_place_pos[0] = place_y();
-		} while (!valid_input(player_place_pos, vals));
-		vals[player_place_pos[0]][player_place_pos[1]] = stone_player;
-		if(end(vals,stone_comp)){
+			place_pos[1] = place_x();
+			place_pos[0] = place_y();
+			if(!valid_input(place_pos, vals)) {
+				printf("Invalid position, try again\n");
+			}
+		} while (!valid_input(place_pos, vals));
+		vals[place_pos[0]][place_pos[1]] = stone_player;
+		if(end(vals,stone_player)){
 			break;
 		}
+		place_comp(vals, place_pos, stone_comp, round);
+		vals[place_pos[0]][place_pos[1]] = stone_comp;
 	printfield(vals);
+	round++;
 	}
 	return 0;
 }
@@ -95,7 +107,71 @@ int place_y()
 	pos = coordinate[0] - '0';
 	return pos;
 }
-int printfield(char vals[BOARD_SIZE][BOARD_SIZE])
+
+void place_comp(char vals[BOARD_SIZE][BOARD_SIZE], int pos[2], char stone, int round)
+{
+	bool mid_own = 0;
+	int last_mov_emem[2] = {pos[0], pos[1]};
+	goto claim_mid;
+	decide:
+	if(last_mov_emem == (int[2]){0, 0} || last_mov_emem == (int[2]){0, 2} || last_mov_emem == (int[2]){2, 0} || last_mov_emem == (int[2]){2, 2}) {
+		goto react_corner;
+	}
+	
+
+	claim_mid:
+	if(valid_input((int[2]){1, 1}, vals)){ //try claiming center first
+		pos[0] = 1;
+		pos[1] = 1;
+		return;
+	} else if (vals[1][1] == stone) {
+		mid_own = 1; //set center as claimed
+		goto decide;
+	}
+	
+	claim_corner:
+	pos[0] = 0;
+	pos[1] = 0;
+	for (int n = 1; n < 4 && !valid_input((int[2]){pos[0], pos[1]}, vals);	n++) {
+		pos[0] = (n / 2) * 2;
+		pos[1] = (n % 2) * 2;
+	}
+
+	react_corner:
+	if(!mid_own) {
+		pos[0] = 2 - last_mov_emem[0];
+		pos[1] = 2 - last_mov_emem[1];
+		if (valid_input(pos, vals)) {
+			return;
+		} else {
+			goto corner_op_owned;
+		}
+	} else {
+		pos[0] = last_mov_emem[0];
+		pos[1] = 2 - last_mov_emem[1];
+		if (!valid_input(pos, vals)) {
+			pos[0] = 2 - last_mov_emem[0];
+			pos[1] = last_mov_emem[1];
+		} else {
+			return;
+		}
+	}
+	
+	corner_op_owned:
+	pos[0] = last_mov_emem[0];
+	pos[1] = 2 - last_mov_emem[1];
+	if (!valid_input(pos, vals)) {
+		pos[0] = 2- last_mov_emem[0];
+		pos[1] = last_mov_emem[1];
+	}
+	if (valid_input(pos, vals)) {
+		return;
+	}
+	random:
+	return;
+}
+
+int  printfield(char vals[BOARD_SIZE][BOARD_SIZE])
 {
 	printf("\033[2J");  // Clear the entire screen
 	printf("\033[H");   // Move cursor to (0, 0)
@@ -134,9 +210,10 @@ int printfield(char vals[BOARD_SIZE][BOARD_SIZE])
 
 bool valid_input(int pos[2], char vals[BOARD_SIZE][BOARD_SIZE])
 {
-	bool valid = (' '==vals[pos[0]][pos[1]] && 0 <= pos[0] && pos[0] < BOARD_SIZE && 0 <= pos[1] && pos[1] < BOARD_SIZE);
-	if(!valid) {
-		printf("Invalid position, try again\n");
-	}
+	bool valid = (' '== vals[pos[0]][pos[1]] && 0 <= pos[0] && pos[0] < BOARD_SIZE && 0 <= pos[1] && pos[1] < BOARD_SIZE);
+	/* if(!valid) { */
+	/* printf("%d, %d",pos[0],pos[1]); */
+	/* 	printf("Invalid position, try again\n"); */
+	/* } */
 	return valid;
 }
